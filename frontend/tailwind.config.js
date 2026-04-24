@@ -1,3 +1,5 @@
+
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -64,6 +66,15 @@ export default {
           error: "#EF4444",
           info: "#38BDF8",
         },
+
+        model:{
+          claude: "#D97757",
+          gpt: "#000",
+          gemini: "#FFF",
+          meta: "#1D65C1",
+          deepseek: "#4D6BFE",
+          // perplexity: "#1361AE",
+        }
       },
 
       boxShadow: {
