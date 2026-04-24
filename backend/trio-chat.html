@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Trio — Multi-AI Conversation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --border: #2a2a30;
+    --text: #e8e8ec;
+    --muted: #6b6b78;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; display: flex; flex-direction: column; }
+
+  header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--text); }
+  .logo span { color: var(--muted); font-style: italic; }
+  #headerStatus { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; }
+
+  .setup-panel { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .agents-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+
+  .agent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; width: 195px; position: relative; flex-shrink: 0; }
+  .remove-btn { position: absolute; top: 6px; right: 8px; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; line-height: 1; padding: 2px 4px; }
+  .remove-btn:hover { color: #e06060; }
+  .agent-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 7px; padding-right: 16px; }
+  .agent-card select, .agent-card input[type="text"] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 11px; padding: 5px 8px; margin-bottom: 5px; outline: none; }
+  .agent-card select:last-child, .agent-card input:last-child { margin-bottom: 0; }
+
+  .add-agent-btn { background: var(--surface); border: 1px dashed var(--border); border-radius: 10px; padding: 10px 14px; cursor: pointer; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; transition: all 0.2s; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .add-agent-btn:hover { border-color: var(--muted); color: var(--text); }
+
+  .bottom-setup { display: flex; gap: 10px; align-items: flex-end; }
+  .topic-wrap { flex: 1; }
+  .topic-wrap label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: var(--muted); display: block; margin-bottom: 5px; }
+  .topic-wrap input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 12px; outline: none; }
+  .topic-wrap input:focus { border-color: var(--muted); }
+
+  .ctrl-btns { display: flex; gap: 8px; }
+  .btn-start { padding: 9px 20px; background: var(--text); color: var(--bg); border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+  .btn-start:hover { opacity: 0.85; }
+  .btn-stop { padding: 9px 20px; background: transparent; color: #e06060; border: 1px solid #e06060; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; display: none; white-space: nowrap; }
+  .btn-stop:hover { background: rgba(224,96,96,0.1); }
+
+  .chat-area { flex: 1; overflow-y: auto; padding: 1.2rem 1.5rem; display: flex; flex-direction: column; gap: 12px; min-height: 200px; }
+  .chat-area::-webkit-scrollbar { width: 4px; }
+  .chat-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .bubble-wrap { display: flex; flex-direction: column; max-width: 70%; }
+  .bubble-meta { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.06em; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
+  .bubble { padding: 10px 14px; border-radius: 10px; font-size: 13px; line-height: 1.65; font-weight: 300; }
+
+  .thinking { display: flex; gap: 5px; padding: 12px 16px; align-items: center; }
+  .thinking span { width: 6px; height: 6px; border-radius: 50%; animation: think 1.2s infinite ease-in-out; }
+  .thinking span:nth-child(2) { animation-delay: 0.2s; }
+  .thinking span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes think { 0%,80%,100%{transform:scale(0.6);opacity:0.3;} 40%{transform:scale(1);opacity:1;} }
+
+  .status-bar { text-align: center; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); padding: 5px; letter-spacing: 0.06em; flex-shrink: 0; }
+
+  .human-input-area { padding: 0.8rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+  .mic-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+  .mic-btn:hover { border-color: #a8f07e; color: #a8f07e; }
+  .mic-btn.listening { border-color: #a8f07e; background: #152208; color: #a8f07e; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(168,240,126,0.3);} 70%{box-shadow:0 0 0 8px rgba(168,240,126,0);} 100%{box-shadow:0 0 0 0 rgba(168,240,126,0);} }
+  .human-text { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 9px 16px; outline: none; transition: border-color 0.2s; }
+  .human-text:focus { border-color: #a8f07e; }
+  .human-text::placeholder { color: var(--muted); }
+  .send-btn { padding: 9px 16px; background: #152208; color: #a8f07e; border: 1px solid #2a5c1a; border-radius: 20px; font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer; }
+  .send-btn:hover { opacity: 0.8; }
+
+  .empty-state { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; color: var(--muted); padding: 3rem 0; }
+  .empty-icon { font-family: 'DM Serif Display', serif; font-size: 40px; opacity: 0.12; }
+  .empty-text { font-size: 12px; letter-spacing: 0.04em; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">trio <span>— multi-ai conversation</span></div>
+  <span id="headerStatus">IDLE</span>
+</header>
+
+<div class="setup-panel">
+  <div class="agents-grid" id="agentsGrid"></div>
+  <div class="bottom-setup">
+    <div class="topic-wrap">
+      <label>Opening topic</label>
+      <input type="text" id="topic" value="Let's have a casual conversation about whether AI will ever truly understand human emotions." />
+    </div>
+    <div class="ctrl-btns">
+      <button class="btn-start" id="startBtn" onclick="startConversation()">Start</button>
+      <button class="btn-stop" id="stopBtn" onclick="stopConversation()">Stop</button>
+    </div>
+  </div>
+</div>
+
+<div class="chat-area" id="chatArea">
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">◎</div>
+    <div class="empty-text">Add agents and press Start — or just type to begin</div>
+  </div>
+</div>
+
+<div class="status-bar" id="statusBar">—</div>
+
+<div class="human-input-area">
+  <button class="mic-btn" id="micBtn" onclick="toggleMic()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+      <line x1="12" y1="19" x2="12" y2="23"/>
+      <line x1="8" y1="23" x2="16" y2="23"/>
+    </svg>
+  </button>
+  <input class="human-text" id="humanInput" type="text" placeholder="Type to join… or click the mic to speak" onkeydown="if(event.key==='Enter')sendHuman()" />
+  <button class="send-btn" onclick="sendHuman()">Send</button>
+</div>
+
+<script>
+const API_KEY = "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"; // <-- PASTE YOUR GROQ API KEY HERE
+
+const MODELS = [
+  { id: "llama-3.1-8b-instant",                      label: "Llama 3.1 8B Instant" },
+  { id: "llama-3.3-70b-versatile",                   label: "Llama 3.3 70B Versatile" },
+  { id: "meta-llama/llama-4-scout-17b-16e-instruct", label: "Llama 4 Scout 17B" },
+  { id: "openai/gpt-oss-20b",                        label: "GPT-OSS 20B" },
+  { id: "openai/gpt-oss-120b",                       label: "GPT-OSS 120B" },
+  { id: "qwen/qwen-3-32b",                           label: "Qwen 3 32B" },
+  { id: "compound-beta",                             label: "Compound Beta" },
+];
+
+const COLORS = [
+  { accent:"#7eb8f7", bg:"#0e2035", border:"#1a3a5c", text:"#cce4ff", side:"left"  },
+  { accent:"#f7a07e", bg:"#35180e", border:"#5c2a1a", text:"#ffd4c2", side:"right" },
+  { accent:"#c07ef7", bg:"#1e0e35", border:"#3a1a5c", text:"#ddc2ff", side:"left"  },
+  { accent:"#7ef7b0", bg:"#0e3520", border:"#1a5c3a", text:"#c2ffd8", side:"right" },
+  { accent:"#f7e07e", bg:"#35290e", border:"#5c4a1a", text:"#fff0c2", side:"left"  },
+  { accent:"#f77eb0", bg:"#350e20", border:"#5c1a3a", text:"#ffc2d8", side:"right" },
+  { accent:"#7ef0f7", bg:"#0e2f35", border:"#1a505c", text:"#c2f0ff", side:"left"  },
+  { accent:"#f0f77e", bg:"#2e350e", border:"#4e5c1a", text:"#f0ffc2", side:"right" },
+  { accent:"#f7c07e", bg:"#35200e", border:"#5c381a", text:"#ffe0c2", side:"left"  },
+  { accent:"#a0f77e", bg:"#183510", border:"#2a5c1a", text:"#d4ffc2", side:"right" },
+];
+
+let agents = [];
+let running = false;
+let conversationHistory = [];
+let recognition = null;
+let micActive = false;
+let pausedForHuman = false;
+let currentIdx = 0;
+let lastCallTime = 0;
+const MIN_GAP_MS = 2200;
+
+function modelOptions(sel) {
+  return MODELS.map(m => `<option value="${m.id}"${m.id===sel?" selected":""}>${m.label}</option>`).join("");
+}
+
+function addAgent(modelId, persona, name) {
+  if (agents.length >= 10) return;
+  const i = agents.length;
+  const col = COLORS[i % COLORS.length];
+  const n = name || `Agent ${String.fromCharCode(65+i)}`;
+  const p = persona || `You are ${n}, a thoughtful and engaging participant. Be natural, concise, and react to what others say.`;
+  const m = modelId || MODELS[i % MODELS.length].id;
+  agents.push({ id:i, col, name:n, model:m, persona:p });
+  renderAgents();
+}
+
+function removeAgent(i) {
+  agents.splice(i, 1);
+  agents.forEach((a,idx) => { a.id=idx; a.col=COLORS[idx%COLORS.length]; });
+  renderAgents();
+}
+
+function renderAgents() {
+  const grid = document.getElementById("agentsGrid");
+  grid.innerHTML = "";
+  agents.forEach((a, i) => {
+    const card = document.createElement("div");
+    card.className = "agent-card";
+    card.style.borderTop = `2px solid ${a.col.accent}`;
+    card.innerHTML = `
+      ${agents.length>1 ? `<button class="remove-btn" onclick="removeAgent(${i})">✕</button>` : ""}
+      <div class="agent-label" style="color:${a.col.accent}">Agent ${String.fromCharCode(65+i)}</div>
+      <select onchange="agents[${i}].model=this.value">${modelOptions(a.model)}</select>
+      <input type="text" value="${a.name}" placeholder="Name" oninput="agents[${i}].name=this.value" />
+      <input type="text" value="${a.persona}" placeholder="Persona" oninput="agents[${i}].persona=this.value" />
+    `;
+    grid.appendChild(card);
+  });
+  if (agents.length < 10) {
+    const btn = document.createElement("button");
+    btn.className = "add-agent-btn";
+    btn.onclick = () => addAgent();
+    btn.innerHTML = `<span style="font-size:16px">+</span> Add agent (${agents.length}/10)`;
+    grid.appendChild(btn);
+  }
+}
+
+function startConversation() {
+  if (!agents.length) { alert("Add at least one agent."); return; }
+  running = true;
+  pausedForHuman = false;
+  currentIdx = 0;
+  conversationHistory = [];
+  document.getElementById("emptyState")?.remove();
+  document.getElementById("startBtn").style.display = "none";
+  document.getElementById("stopBtn").style.display = "block";
+  setHeader("LIVE");
+  const topic = document.getElementById("topic").value.trim();
+  if (topic) {
+    addBubble("system", "topic", topic);
+    conversationHistory.push({ role:"user", content:`[Topic]: ${topic}` });
+  }
+  runLoop();
+}
+
+function stopConversation() {
+  running = false;
+  pausedForHuman = false;
+  window.speechSynthesis.cancel();
+  if (recognition) try { recognition.stop(); } catch(e){}
+  document.getElementById("startBtn").style.display = "block";
+  document.getElementById("stopBtn").style.display = "none";
+  setHeader("IDLE");
+  setStatus("Stopped.");
+}
+
+async function runLoop() {
+  while (running) {
+    if (pausedForHuman) { await sleep(300); continue; }
+    const agent = agents[currentIdx % agents.length];
+    await doTurn(agent, currentIdx % agents.length);
+    if (!running) break;
+    currentIdx++;
+    await sleep(100);
+  }
+}
+
+async function doTurn(agent, idx) {
+  const thinkEl = addThinking(idx);
+  setStatus(`${agent.name} is thinking…`);
+  const names = agents.map(a=>a.name).join(", ");
+  const msgs = [
+    { role:"system", content:`${agent.persona} You are chatting in a group with: ${names}, and a human. Reply in 1-3 sentences max. Be natural and conversational. React to what was last said.` },
+    ...conversationHistory.slice(-14)
+  ];
+  const reply = await callGroq(agent.model, msgs);
+  thinkEl.remove();
+  if (!reply || !running) return;
+  addBubble(idx, agent.name, reply);
+  conversationHistory.push({ role:"assistant", content:`[${agent.name}]: ${reply}` });
+  setStatus(`${agent.name} is speaking…`);
+  await speakAndWait(reply, idx);
+  setStatus("—");
+}
+
+async function sendHuman(override) {
+  const input = document.getElementById("humanInput");
+  const text = override !== undefined ? override : input.value.trim();
+  if (!text) return;
+  input.value = "";
+  addBubble("human", "You", text);
+  conversationHistory.push({ role:"user", content:`[You]: ${text}` });
+  window.speechSynthesis.cancel();
+  pausedForHuman = false;
+  if (!running) {
+    running = true;
+    document.getElementById("emptyState")?.remove();
+    document.getElementById("startBtn").style.display = "none";
+    document.getElementById("stopBtn").style.display = "block";
+    setHeader("LIVE");
+    runLoop();
+  }
+}
+
+function toggleMic() { micActive ? stopMic() : startMic(); }
+
+function startMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert("Speech recognition requires Chrome."); return; }
+  recognition = new SR();
+  recognition.lang = "en-US";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.onstart = () => {
+    micActive = true; pausedForHuman = true;
+    window.speechSynthesis.cancel();
+    document.getElementById("micBtn").classList.add("listening");
+    setStatus("Listening to you…");
+  };
+  recognition.onresult = e => sendHuman(e.results[0][0].transcript);
+  recognition.onend = () => {
+    micActive = false; pausedForHuman = false;
+    document.getElementById("micBtn").classList.remove("listening");
+    setStatus("—");
+  };
+  recognition.onerror = e => {
+    micActive = false; pausedForHuman = false;
+    document.getElementById("micBtn").classList.remove("listening");
+    setStatus("Mic error: " + e.error);
+  };
+  recognition.start();
+}
+
+function stopMic() { if (recognition) try { recognition.stop(); } catch(e){} }
+
+async function callGroq(model, messages, retries = 4) {
+  const now = Date.now();
+  const gap = now - lastCallTime;
+  if (gap < MIN_GAP_MS) await sleep(MIN_GAP_MS - gap);
+  lastCallTime = Date.now();
+
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization":`Bearer ${API_KEY}`, "Content-Type":"application/json" },
+      body: JSON.stringify({ model, messages, max_tokens: 80 })
+    });
+
+    if (res.status === 429) {
+      const err = await res.json();
+      const waitMatch = err?.error?.message?.match(/try again in (\d+\.?\d*)s/);
+      const waitMs = waitMatch ? Math.ceil(parseFloat(waitMatch[1]) * 1000) + 300 : 3000;
+      setStatus(`Rate limit — waiting ${(waitMs/1000).toFixed(1)}s…`);
+      await sleep(waitMs);
+      if (retries > 0) return callGroq(model, messages, retries - 1);
+      return null;
+    }
+
+    if (!res.ok) {
+      const err = await res.json();
+      console.error("Groq error:", JSON.stringify(err));
+      setStatus(`Error on ${model} — check console`);
+      return null;
+    }
+    const data = await res.json();
+    return data.choices[0].message.content.trim();
+  } catch(e) { console.error(e); setStatus("Network error"); return null; }
+}
+
+function speakAndWait(text, idx) {
+  return new Promise(resolve => {
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length) utt.voice = voices[idx % voices.length];
+    utt.pitch = 0.88 + (idx * 0.09);
+    utt.rate  = 0.94 + (idx * 0.025);
+    utt.onend = resolve; utt.onerror = resolve;
+    window.speechSynthesis.speak(utt);
+    setTimeout(resolve, text.length * 75 + 2500);
+  });
+}
+
+function addBubble(idxOrType, name, text) {
+  const chat = document.getElementById("chatArea");
+  const wrap = document.createElement("div");
+  wrap.className = "bubble-wrap";
+  if (idxOrType === "human") {
+    wrap.style.alignSelf = "center";
+    wrap.innerHTML = `
+      <div class="bubble-meta" style="color:#a8f07e;justify-content:center;">${name}</div>
+      <div class="bubble" style="background:#152208;color:#ccf0aa;border:1px solid #2a5c1a;border-radius:10px;">${text}</div>`;
+  } else if (idxOrType === "system") {
+    wrap.style.alignSelf = "center";
+    wrap.innerHTML = `
+      <div class="bubble-meta" style="color:var(--muted);justify-content:center;">${name}</div>
+      <div class="bubble" style="background:var(--surface);color:var(--muted);border:1px solid var(--border);font-style:italic;text-align:center;border-radius:10px;">${text}</div>`;
+  } else {
+    const c = COLORS[idxOrType % COLORS.length];
+    wrap.style.alignSelf = c.side === "left" ? "flex-start" : "flex-end";
+    const br = c.side === "left" ? "4px 10px 10px 10px" : "10px 4px 10px 10px";
+    wrap.innerHTML = `
+      <div class="bubble-meta" style="color:${c.accent};">${name}</div>
+      <div class="bubble" style="background:${c.bg};color:${c.text};border:1px solid ${c.border};border-radius:${br};">${text}</div>`;
+  }
+  chat.appendChild(wrap);
+  chat.scrollTop = chat.scrollHeight;
+  return wrap;
+}
+
+function addThinking(idx) {
+  const c = COLORS[idx % COLORS.length];
+  const agent = agents[idx];
+  const chat = document.getElementById("chatArea");
+  const wrap = document.createElement("div");
+  wrap.className = "bubble-wrap";
+  wrap.style.alignSelf = c.side === "left" ? "flex-start" : "flex-end";
+  wrap.innerHTML = `
+    <div class="bubble-meta" style="color:${c.accent};">${agent?.name||"..."}</div>
+    <div class="bubble thinking" style="background:${c.bg};border:1px solid ${c.border};">
+      <span style="background:${c.accent}"></span><span style="background:${c.accent}"></span><span style="background:${c.accent}"></span>
+    </div>`;
+  chat.appendChild(wrap);
+  chat.scrollTop = chat.scrollHeight;
+  return wrap;
+}
+
+function setStatus(m) { document.getElementById("statusBar").textContent = m; }
+function setHeader(m) { document.getElementById("headerStatus").textContent = m; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+window.speechSynthesis.onvoiceschanged = () => {};
+
+addAgent("llama-3.1-8b-instant", "You are Alex, an enthusiastic optimist who loves exploring big ideas.", "Alex");
+addAgent("llama-3.1-8b-instant", "You are Jordan, a witty skeptic who questions everything with dry humor.", "Jordan");
+</script>
+</body>
+</html>
