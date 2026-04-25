@@ -2,7 +2,7 @@
 import { CircleFadingPlus, MessageCircleMore } from 'lucide-react'
 export default function Navbar() {
   return (
-      <nav className="flex justify-between items-center w-full px-10 border-b-3 border-border py-5">
+      <nav className="flex justify-between items-center w-full px-10 border-b-3 border-white/20 py-5">
 
         <div>
           <h2 className='text-4xl font-bold text-primary-active'>Vault</h2>
