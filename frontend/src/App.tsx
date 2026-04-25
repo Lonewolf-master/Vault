@@ -8,13 +8,13 @@ export default function App() {
 
     <section id='main' className="flex h-screen flex-col bg-background-primary justify-center overflow-hidden">
       <Navbar />
-      <section id='interaction' className='flex flex-1 flex-row w-full '>
+      <section id='interaction' className='flex flex-1 flex-row w-full min-h-0'>
 
-        <div className='flex-1 overflow-y-auto'>
+        <div className='flex-1 min-h-0 overflow-y-auto'>
           <Module />
         </div>
 
-        <div className='flex flex-col w-[40rem] shrink-0 justify-between border-l-3 border-white/20 '>
+        <div className='flex flex-col w-[40rem] shrink-0 justify-between min-h-0 border-l-3 border-white/20 '>
           <Messages />
           <InputText />
         </div>

@@ -88,10 +88,9 @@ export default {
     },
   },
   safelist: [
-    {
-      pattern: /(border|text|bg)-model-(claude|gpt|gemini|meta|deepseek|grok|gemma|user)/,
-      variants: ['hover'],
-    }
+    'border-model-claude', 'border-model-gpt', 'border-model-gemini', 'border-model-meta', 'border-model-deepseek', 'border-model-grok', 'border-model-gemma', 'border-model-user',
+    'text-model-claude', 'text-model-gpt', 'text-model-gemini', 'text-model-meta', 'text-model-deepseek', 'text-model-grok', 'text-model-gemma', 'text-model-user',
+    'bg-model-claude', 'bg-model-gpt', 'bg-model-gemini', 'bg-model-meta', 'bg-model-deepseek', 'bg-model-grok', 'bg-model-gemma', 'bg-model-user',
   ],
   plugins: [],
 };

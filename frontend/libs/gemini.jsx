@@ -31,7 +31,9 @@ export default async function ChatWithGemini(prompt) {
       // Gemini's response text is inside candidates[0].content.parts[0].text
       const reply = result.candidates[0].content.parts[0].text;
       console.log("Gemini says:", reply);
-      return reply;
+      
+      return { role: 'ai', content: reply, sender: 'Gemini', brand: 'gemini' };
+      
     } else {
       console.error("Error from Gemini:", result.error);
     }
