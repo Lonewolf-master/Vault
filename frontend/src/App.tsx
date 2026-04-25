@@ -2,7 +2,6 @@
 import Navbar from '../components/Navbar'
 import Module from '../components/Models'
 import InputText from '../components/InputText'
-
 export default function App() {
   return (
     <> 

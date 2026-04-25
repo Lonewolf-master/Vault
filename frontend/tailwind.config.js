@@ -69,10 +69,12 @@ export default {
 
         model:{
           claude: "#D97757",
-          gpt: "#000",
+          gpt: "#10A37F", // OpenAI Green
           gemini: "#FFF",
           meta: "#1D65C1",
           deepseek: "#4D6BFE",
+          grok: "#FFF",
+          gemma: "#2E96FF",
           // perplexity: "#1361AE",
         }
       },
