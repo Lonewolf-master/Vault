@@ -4,7 +4,7 @@
 
 const DEEPSEEK_API_KEY = "YOUR_DEEPSEEK_API_KEY"; // Replace with your DeepSeek API Key
 
-async function chatWithDeepSeek(prompt) {
+export default async function ChatWithDeepSeek(prompt) {
   // Define the endpoint for DeepSeek chat completions
   const url = "https://api.deepseek.com/chat/completions";
 

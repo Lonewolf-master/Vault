@@ -4,7 +4,7 @@
 
 const GROQ_API_KEY = "YOUR_GROQ_API_KEY"; // Replace with your Groq API Key
 
-async function chatWithMeta(prompt) {
+export default async function ChatWithMeta(prompt) {
   // Groq's OpenAI-compatible endpoint
   const url = "https://api.groq.com/openai/v1/chat/completions";
 

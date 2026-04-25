@@ -3,7 +3,7 @@
 
 const ANTHROPIC_API_KEY = "YOUR_ANTHROPIC_API_KEY"; // Replace with your Anthropic API Key
 
-async function chatWithClaude(prompt) {
+export default async function ChatWithClaude(prompt) {
   // Define the endpoint. Claude uses the 'messages' endpoint.
   const url = "https://api.anthropic.com/v1/messages";
 

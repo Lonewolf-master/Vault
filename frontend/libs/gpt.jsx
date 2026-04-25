@@ -3,7 +3,7 @@
 
 const OPENAI_API_KEY = "YOUR_OPENAI_API_KEY"; // Replace with your OpenAI API Key
 
-async function chatWithGPT(prompt) {
+export default async function ChatWithGPT(prompt) {
   // Define the endpoint for OpenAI chat completions
   const url = "https://api.openai.com/v1/chat/completions";
 

@@ -3,7 +3,7 @@
 // This is 100% Free and built into all modern browsers. It uses the user's 
 // operating system voices, making it perfect for your React frontend.
 
-function speakWithBrowser(text, aiName) {
+export default function SpeakWithBrowser(text, aiName) {
   // Check if browser supports speech synthesis
   if (!('speechSynthesis' in window)) {
     console.error("Your browser does not support speech synthesis.");

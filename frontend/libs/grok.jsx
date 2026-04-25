@@ -4,7 +4,7 @@
 
 const XAI_API_KEY = "YOUR_XAI_API_KEY"; // Replace with your xAI API Key
 
-async function chatWithGrok(prompt) {
+export default async function ChatWithGrok(prompt) {
   // Define the endpoint for xAI
   const url = "https://api.x.ai/v1/chat/completions";
 

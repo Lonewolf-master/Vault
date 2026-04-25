@@ -5,7 +5,7 @@
 
 const OPENAI_API_KEY = "YOUR_OPENAI_API_KEY";
 
-async function speakWithOpenAI(text, aiName) {
+export default async function SpeakWithOpenAI(text, aiName) {
   const url = "https://api.openai.com/v1/audio/speech";
 
   // OpenAI offers 6 voices: alloy, echo, fable, onyx, nova, and shimmer
