@@ -2,9 +2,9 @@ import {Send} from 'lucide-react'
 
 export default function InputText() {
   return (
-    <section id='inputtext' className="flex justify-center w-full px-4 py-8">
+    <section id='inputtext' className="flex justify-center w-full px-4 pb-4 ">
 
-      <div className="flex w-full max-w-5xl gap-x-5">
+      <div className="flex w-full max-w-2xl gap-x-2">
         
         <div className="flex-1">
           <input

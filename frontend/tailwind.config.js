@@ -75,6 +75,7 @@ export default {
           deepseek: "#4D6BFE",
           grok: "#FFF",
           gemma: "#2E96FF",
+          user: "#14A847",
           // perplexity: "#1361AE",
         }
       },
@@ -86,5 +87,11 @@ export default {
       },
     },
   },
+  safelist: [
+    {
+      pattern: /(border|text|bg)-model-(claude|gpt|gemini|meta|deepseek|grok|gemma|user)/,
+      variants: ['hover'],
+    }
+  ],
   plugins: [],
 };

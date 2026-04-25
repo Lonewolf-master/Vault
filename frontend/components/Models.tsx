@@ -25,12 +25,12 @@ export default function Models() {
       image: "../src/assets/deepseek-color.png",
       brand: "deepseek", 
     },
-    // {
-    //   name: "Meta",
-    //   company: "Meta",
-    //   image: "../src/assets/meta-color.png",
-    //   brand: "meta",
-    // },
+    {
+      name: "Meta",
+      company: "Meta",
+      image: "../src/assets/meta-color.png",
+      brand: "meta",
+    },
     {
       name: "Grok",
       company: "X",
@@ -84,7 +84,7 @@ const brandStyles: Record<string, { border: string; glow: string; shadow: string
   };
 
   return (
-    <section className='flex flex-wrap justify-center items-center py-10 w-full gap-5'>
+    <section className='flex  flex-wrap justify-center items-center py-10 w-full gap-5'>
       {
         models.map( (model, index) => {
 
