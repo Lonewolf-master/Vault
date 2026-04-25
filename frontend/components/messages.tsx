@@ -1,33 +1,39 @@
+import useOpenAIStore from '../store/OpenAPI'
+import { useEffect, useRef } from 'react'
 
 export default function Messages() {
-  // Mock data to demonstrate the chat layout
-  const chatHistory = [
-    { id: 1, role: 'user', content: 'Can you explain quantum computing in simple terms?', sender: 'You', color: 'text-primary-active', brand: "user" },
-    { id: 2, role: 'ai', content: 'information. Unlike regular computers that use bits (0s and 1s) them to solve certain complex problems much faster.', sender: 'Claude', brand: 'claude' },
-    { id: 3, role: 'ai', content: 'To add to what Claude said, think of a maze. A classical ssentially tries all paths at the same time.', sender: 'GPT-4o', brand: 'gpt' },
-    { id: 4, role: 'user', content: 'Wow, that sounds incredibly powerful. Are there any downsides?' , sender: 'You', brand: "user" },
-    { id: 5, role: 'ai', content: 'stray electromagnetic wave can cause "decoherence," making the qubits lose their quantum state and zero temperature.', sender: 'Gemini 3.1 Pro', brand: 'gemini' },
-    { id: 6, role: 'ai', content: 'To add to what Claude said, think of a maze. A classical ssentially tries all paths at the same time.', sender: 'DeepSeek', brand: 'deepseek' },
-  ];
+  const { chatHistory } = useOpenAIStore();
+  
+  // 1. Create a reference to the bottom of the chat
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // 2. Automatically scroll to that reference whenever chatHistory changes
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatHistory]);
 
   return (
-    <div className='flex-1 flex flex-col min-h-0 overflow-y-auto text-white bg-background-tertiary/10 space-y-6 p-5'>
-        {
-            chatHistory.map((msg, index) => {
-                    console.log(msg);
-                    const isUser = msg.role === 'user';
-                    const position = isUser ? 'self-end items-end text-end' : 'self-start items-start';
+    // Added classes to hide the scrollbar but keep scrolling functionality!
+    <div className='flex-1 flex flex-col min-h-0 overflow-y-auto text-white bg-background-tertiary/10 space-y-6 p-5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'>
+      {
+        chatHistory.map((msg: any, index: number) => {
+          const isUser = msg.role === 'user';
+          const position = isUser ? 'self-end items-end text-end' : 'self-start items-start';
 
-               return(
+          return (
 
-                <div key={index} className={` w-[90%] border-model-${msg.brand} ${position} border-2 rounded-2xl  flex flex-col py-3 px-2 `}>
-                    <span className={`font-bold underline text-wrap mx-4 text-model-${msg.brand}`}>{msg.sender}</span>
-                    <p className={`text-lg text-wrap  text-model-${msg.brand}`}>{msg.content}</p>
-                </div>
-                
-               )
-            })
-        }
+            <div key={index} className={` w-[90%]  ${position}  flex flex-col py-3 px-2 `}>
+              <span className={`font-bold text-xl text-wrap mx-5 text-model-${msg.brand}`}>{msg.sender}</span>
+              <p className={`text-lg text-wrap  text-white/80`}>{msg.content}</p>
+              <p className={`text-sm font-semibold text-wrap text-model-${msg.brand} italic ${position} mt-3`}>{msg.id}</p>
+            </div>
+
+          )
+        })
+      }
+      
+      {/* 3. This is the invisible marker at the very bottom of the chat */}
+      <div ref={messagesEndRef} />
     </div>
   )
 }
